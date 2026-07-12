@@ -1,3 +1,4 @@
+import axios, { AxiosError } from "axios";
 import type { QueryResponse } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -7,6 +8,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 // fetched from the backend) so the UI can enforce/display the limit
 // without an extra round trip.
 export const MAX_QUESTION_LENGTH = 1000;
+
+const api = axios.create({
+  baseURL: `${API_URL}/api`,
+  headers: { "Content-Type": "application/json" },
+});
 
 export class ApiError extends Error {
   status: number;
@@ -18,33 +24,41 @@ export class ApiError extends Error {
   }
 }
 
-async function handleResponse<T>(res: Response): Promise<T> {
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
+function toApiError(err: unknown): ApiError {
+  const axiosErr = err as AxiosError<{ detail?: string; message?: string }>;
+  if (axiosErr.isAxiosError) {
+    const status = axiosErr.response?.status ?? 0;
     const message =
-      (body && (body.detail || body.message)) ||
-      `Request failed with status ${res.status}`;
-    throw new ApiError(message, res.status);
+      axiosErr.response?.data?.detail ||
+      axiosErr.response?.data?.message ||
+      axiosErr.message ||
+      `Request failed with status ${status}`;
+    return new ApiError(message, status);
   }
-  return res.json() as Promise<T>;
+  return new ApiError((err as Error)?.message ?? "Unknown error", 0);
 }
 
 export async function queryRag(
+  sessionId: string,
   question: string,
   topK = 4,
 ): Promise<QueryResponse> {
-  const res = await fetch(`${API_URL}/api/chat/query`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question, top_k: topK }),
-  });
-  return handleResponse<QueryResponse>(res);
+  try {
+    const res = await api.post<QueryResponse>("/chat/query", {
+      session_id: sessionId,
+      question,
+      top_k: topK,
+    });
+    return res.data;
+  } catch (err) {
+    throw toApiError(err);
+  }
 }
 
 export async function checkHealth(): Promise<boolean> {
   try {
-    const res = await fetch(`${API_URL}/api/health`);
-    return res.ok;
+    const res = await api.get("/health");
+    return res.status >= 200 && res.status < 300;
   } catch {
     return false;
   }

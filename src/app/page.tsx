@@ -32,6 +32,11 @@ export default function ChatPage() {
   const [isThinking, setIsThinking] = useState(false);
   const [online, setOnline] = useState<boolean | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Groups this conversation's messages server-side (see `session_id` on
+  // `Chat` in `backend/app/db/schema_modal.py`). Regenerated on "New Chat"
+  // so the backend starts a fresh chat record instead of appending to the
+  // old one.
+  const [sessionId, setSessionId] = useState(makeId);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,7 +44,10 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
   const send = async (content: string) => {
@@ -60,10 +68,16 @@ export default function ChatPage() {
     setIsThinking(true);
 
     try {
-      const { answer, sources } = await queryRag(content);
+      const { answer, sources } = await queryRag(sessionId, content);
       setMessages((prev) => [
         ...prev,
-        { id: makeId(), role: "assistant", content: answer, sources, createdAt: timestamp() },
+        {
+          id: makeId(),
+          role: "assistant",
+          content: answer,
+          sources,
+          createdAt: timestamp(),
+        },
       ]);
     } catch (err) {
       const message =
@@ -72,14 +86,22 @@ export default function ChatPage() {
           : "Failed to reach the backend. Is it running?";
       setMessages((prev) => [
         ...prev,
-        { id: makeId(), role: "assistant", content: `⚠️ ${message}`, createdAt: timestamp() },
+        {
+          id: makeId(),
+          role: "assistant",
+          content: `⚠️ ${message}`,
+          createdAt: timestamp(),
+        },
       ]);
     } finally {
       setIsThinking(false);
     }
   };
 
-  const newChat = () => setMessages([]);
+  const newChat = () => {
+    setMessages([]);
+    setSessionId(makeId());
+  };
 
   return (
     <div className="flex flex-1 overflow-hidden">
@@ -117,7 +139,10 @@ export default function ChatPage() {
           between the header and the input bar instead of growing with its
           content - all spacing lives on the inner wrapper below instead.
         */}
-        <div ref={scrollRef} className="styled-scrollbar min-h-0 flex-1 overflow-y-auto">
+        <div
+          ref={scrollRef}
+          className="styled-scrollbar min-h-0 flex-1 overflow-y-auto"
+        >
           {messages.length === 0 ? (
             <div className="mx-auto flex h-full max-w-xl flex-col items-center justify-center gap-3 px-4 text-center sm:px-6">
               <AssistantAvatar className="h-14 w-14" size={56} />
@@ -125,9 +150,9 @@ export default function ChatPage() {
                 Ask me anything about {profile.name.split(" ")[0]}
               </h2>
               <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                I&apos;m an AI assistant trained on {profile.name.split(" ")[0]}&apos;s
-                background, skills, and projects. Try a suggestion from the menu
-                to get started.
+                I&apos;m an AI assistant trained on {profile.name.split(" ")[0]}
+                &apos;s background, skills, and projects. Try a suggestion from
+                the menu to get started.
               </p>
             </div>
           ) : (
