@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import AssistantAvatar from "./AssistantAvatar";
-import { THEME_OPTIONS } from "./FloatingToolbar";
+import { THEME_OPTIONS } from "./ThemeIcons";
 import StatusBadge from "./StatusBadge";
 
 interface MobileHeaderProps {

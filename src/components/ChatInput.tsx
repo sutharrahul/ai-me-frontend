@@ -59,14 +59,6 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
         onSubmit={handleSubmit}
         className="flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-3 py-2 shadow-sm dark:border-white/10 dark:bg-neutral-900"
       >
-        <button
-          type="button"
-          aria-label="Add attachment"
-          disabled
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-neutral-400 disabled:cursor-not-allowed dark:text-neutral-500"
-        >
-          <PlusIcon className="h-4 w-4" />
-        </button>
 
         <textarea
           ref={textareaRef}
@@ -79,15 +71,6 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           disabled={disabled}
           className="max-h-32 flex-1 resize-none bg-transparent py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none disabled:opacity-50 dark:text-neutral-100 dark:placeholder:text-neutral-500"
         />
-
-        <button
-          type="button"
-          aria-label="Voice input"
-          disabled
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-neutral-400 disabled:cursor-not-allowed dark:text-neutral-500"
-        >
-          <MicIcon className="h-4 w-4" />
-        </button>
 
         <button
           type="submit"
@@ -113,23 +96,6 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
         </p>
       )}
     </div>
-  );
-}
-
-function PlusIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
-      <path strokeLinecap="round" d="M12 5v14M5 12h14" />
-    </svg>
-  );
-}
-
-function MicIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
-      <rect x="9" y="2" width="6" height="12" rx="3" />
-      <path strokeLinecap="round" d="M5 10a7 7 0 0 0 14 0M12 21v-4" />
-    </svg>
   );
 }
 

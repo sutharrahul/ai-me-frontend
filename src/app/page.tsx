@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import AssistantAvatar from "@/components/AssistantAvatar";
 import ChatInput from "@/components/ChatInput";
 import ChatMessageBubble from "@/components/ChatMessageBubble";
-import FloatingToolbar from "@/components/FloatingToolbar";
 import HelpButton from "@/components/HelpButton";
 import MobileHeader from "@/components/MobileHeader";
 import Sidebar from "@/components/Sidebar";
+import ThemeSwitch from "@/components/ThemeSwitch";
 import { checkHealth, queryRag, ApiError } from "@/lib/api";
 import type { ChatMessage } from "@/lib/types";
 import { profile } from "@/lib/assistant";
@@ -31,7 +31,12 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isThinking, setIsThinking] = useState(false);
   const [online, setOnline] = useState<boolean | null>(null);
+  // Mobile overlay drawer - starts closed so it doesn't cover the chat on
+  // small screens where it renders as a full backdrop.
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Desktop collapse - independent of the mobile drawer above. Starts open
+  // so the sidebar is visible by default in a normal browser view.
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   // Groups this conversation's messages server-side (see `session_id` on
   // `Chat` in `backend/app/db/schema_modal.py`). Regenerated on "New Chat"
   // so the backend starts a fresh chat record instead of appending to the
@@ -111,6 +116,9 @@ export default function ChatPage() {
         onNewChat={newChat}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        desktopOpen={desktopSidebarOpen}
+        onCloseDesktop={() => setDesktopSidebarOpen(false)}
+        online={online}
         disabled={isThinking}
       />
 
@@ -121,10 +129,23 @@ export default function ChatPage() {
           online={online}
         />
 
-        <div className=" px-6 py-4 md:block">
-          <h1 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
-            Chat
-          </h1>
+        <div className="hidden items-center justify-between px-6 py-4 md:flex">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setDesktopSidebarOpen((o) => !o)}
+              aria-label={desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+              aria-pressed={desktopSidebarOpen}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-white"
+            >
+              <SidebarIcon className="h-6 w-6" />
+            </button>
+            <h1 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+              Chat
+            </h1>
+          </div>
+
+          <ThemeSwitch />
         </div>
 
         {/*
@@ -177,8 +198,22 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <FloatingToolbar onNewChat={newChat} online={online} />
       <HelpButton />
     </div>
+  );
+}
+
+function SidebarIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      className={className}
+    >
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path strokeLinecap="round" d="M9 4v16" />
+    </svg>
   );
 }
