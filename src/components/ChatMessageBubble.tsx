@@ -1,3 +1,5 @@
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { ChatMessage } from "@/lib/types";
 import AssistantAvatar from "./AssistantAvatar";
 
@@ -21,13 +23,28 @@ export default function ChatMessageBubble({
     <div className={`flex items-center gap-2.5 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && <AssistantAvatar className="h-9 w-9" size={36} />}
       <div
-        className={`min-w-0 max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap break-words ${
+        className={`min-w-0 max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed break-words ${
           isUser
-            ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+            ? "whitespace-pre-wrap bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
             : "border border-neutral-200 bg-white text-neutral-900 dark:border-white/10 dark:bg-white/[0.06] dark:text-neutral-100"
         }`}
       >
-        {message.content}
+        {isUser ? (
+          message.content
+        ) : (
+          // Markdown, not plain text - the model's answers are grounded in
+          // markdown-formatted source content (see `data/seed/about_rahul.md`)
+          // and naturally echo that formatting (bold, bullet lists, etc.).
+          // `prose` (Tailwind Typography) styles the rendered output;
+          // `prose-p:last:mb-0` drops the last paragraph's bottom margin so
+          // the streaming cursor below sits close to the final line instead
+          // of visibly detached below it.
+          <div className="prose prose-sm prose-neutral max-w-none dark:prose-invert prose-p:last:mb-0 prose-pre:overflow-x-auto">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {message.content}
+            </ReactMarkdown>
+          </div>
+        )}
         {isStreaming && (
           <span className="ml-0.5 inline-block h-4 w-1.5 translate-y-0.5 animate-pulse bg-current align-middle" />
         )}
