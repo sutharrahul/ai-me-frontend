@@ -16,7 +16,7 @@ const AVATAR_FILES = [
   "image1.png",
   "image2.png",
   "image3.png",
-  "image4.png",
+  "image5.png",
 ];
 
 // Shown until the client picks a real one (see AvatarProvider below) - SSR
