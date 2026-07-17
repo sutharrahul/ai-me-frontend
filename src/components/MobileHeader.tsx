@@ -18,9 +18,6 @@ export default function MobileHeader({ onOpenSidebar, onNewChat, online }: Mobil
 
   return (
     <>
-      {/* Transparent backdrop — closes the menu when tapped outside the dropdown.
-          Rendered as a sibling to <header> so it sits behind the dropdown (z-40)
-          but above the rest of the page content. */}
       {menuOpen && (
         <div
           className="fixed inset-0 z-40"

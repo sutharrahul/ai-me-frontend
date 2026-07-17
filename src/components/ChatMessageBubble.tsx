@@ -32,13 +32,6 @@ export default function ChatMessageBubble({
         {isUser ? (
           message.content
         ) : (
-          // Markdown, not plain text - the model's answers are grounded in
-          // markdown-formatted source content (see `data/seed/about_rahul.md`)
-          // and naturally echo that formatting (bold, bullet lists, etc.).
-          // `prose` (Tailwind Typography) styles the rendered output;
-          // `prose-p:last:mb-0` drops the last paragraph's bottom margin so
-          // the streaming cursor below sits close to the final line instead
-          // of visibly detached below it.
           <div className="prose prose-sm prose-neutral max-w-none dark:prose-invert prose-p:last:mb-0 prose-pre:overflow-x-auto">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {message.content}

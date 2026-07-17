@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 import { MAX_QUESTION_LENGTH } from "@/lib/api";
 
 interface ChatInputProps {
@@ -59,7 +65,6 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
         onSubmit={handleSubmit}
         className="flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-3 py-2 shadow-sm dark:border-white/10 dark:bg-neutral-900"
       >
-
         <textarea
           ref={textareaRef}
           value={value}
@@ -69,7 +74,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           maxLength={MAX_QUESTION_LENGTH}
           placeholder="Type a message..."
           disabled={disabled}
-          className="max-h-32 flex-1 resize-none bg-transparent py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none disabled:opacity-50 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+          className="max-h-32 flex-1 resize-none bg-transparent py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none disabled:opacity-50 dark:text-neutral-100 dark:placeholder:text-neutral-500 overflow-y-auto scrollbar-hide"
         />
 
         <button
@@ -101,8 +106,18 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
 
 function ArrowUpIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5M5 12l7-7 7 7" />
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      className={className}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 19V5M5 12l7-7 7 7"
+      />
     </svg>
   );
 }
